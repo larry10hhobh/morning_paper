@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"text/tabwriter"
 	"time"
-
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 func init() {
@@ -19,7 +17,9 @@ func init() {
 }
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI(config.TelegramBotToken)
+
+	// Get Telegram bot
+	bot, err := getBotWithSocks5Proxy()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func main() {
 			return
 		}
 		weekday := date.Weekday()
-		fmt.Fprintf(w, "%s\t%s\t%s度\t%s度\t%s\t%s\t%.2f\t%.2fmm\n", day.Date, weekday, day.High, day.Low, day.TextDay, day.TextNight, precip, rainfall)
+		fmt.Fprintf(w, "%s\t%s\t%s度\t%s度\t%s\t%s\t%.1f\t%.1fmm\n", day.Date, weekday, day.High, day.Low, day.TextDay, day.TextNight, precip, rainfall)
 	}
 	w.Flush()
 	tableString := buf.String()
@@ -60,16 +60,4 @@ func main() {
 
 	// Send weather and news to Telegram
 	sendToTelegram(tableString, bot)
-}
-
-func sendToTelegram(weather string, bot *tgbotapi.BotAPI) {
-	//message := fmt.Sprintf("Weather: %s\nNews: %s", weather)
-	msg := tgbotapi.NewMessage(config.TelegramUserID, weather)
-
-	_, err := bot.Send(msg)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Printf("Message sent: %s", weather)
-	}
 }

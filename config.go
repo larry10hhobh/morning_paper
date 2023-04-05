@@ -5,8 +5,15 @@ import (
 )
 
 type Config struct {
-	TelegramUserID    int64  `toml:"telegram_user_id"`
-	TelegramBotToken  string `toml:"telegram_bot_token"`
+	// Telegram
+	TelegramUserID   int64  `toml:"telegram_user_id"`
+	TelegramBotToken string `toml:"telegram_bot_token"`
+
+	// Proxy
+	UseProxy     bool   `toml:"use_proxy"`
+	ProxyAddress string `toml:"proxy_address"`
+
+	// Seniverse
 	SeniverseAPIKey   string `toml:"seniverse_api_key"`
 	SeniverseLocation string `toml:"seniverse_location"`
 }

@@ -3,6 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"golang.org/x/net/proxy"
+	"net/http"
+	"net/url"
 	"strconv"
 	"testing"
 	"text/tabwriter"
@@ -94,4 +98,47 @@ func TestGetWeather(t *testing.T) {
 
 	tableString := buf.String()
 	fmt.Println(tableString)
+}
+
+func TestBotWithLongTimeout(t *testing.T) {
+	httpClient := &http.Client{
+		Timeout: time.Second * 30,
+	}
+
+	bot, err := tgbotapi.NewBotAPIWithClient(config.TelegramBotToken, httpClient)
+	if err != nil {
+		t.Fatalf("Error creating new bot: %v", err)
+	}
+
+	t.Logf("Bot username: %s\n", bot.Self.UserName)
+	t.Logf("Bot ID: %d\n", bot.Self.ID)
+}
+
+func TestBotWithSocks5Proxy(t *testing.T) {
+	socks5ProxyURL, err := url.Parse("socks5://127.0.0.1:7890")
+	if err != nil {
+		t.Fatalf("Error parsing proxy URL: %v", err)
+	}
+
+	dialer, err := proxy.FromURL(socks5ProxyURL, proxy.Direct)
+	if err != nil {
+		t.Fatalf("Error creating proxy dialer: %v", err)
+	}
+
+	httpTransport := &http.Transport{
+		Dial: dialer.Dial,
+	}
+
+	httpClient := &http.Client{
+		Timeout:   time.Second * 30,
+		Transport: httpTransport,
+	}
+
+	bot, err := tgbotapi.NewBotAPIWithClient(config.TelegramBotToken, httpClient)
+	if err != nil {
+		t.Fatalf("Error creating new bot: %v", err)
+	}
+
+	t.Logf("Bot username: %s\n", bot.Self.UserName)
+	t.Logf("Bot ID: %d\n", bot.Self.ID)
 }
